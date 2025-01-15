@@ -2,10 +2,9 @@ package utils;
 
 import io.restassured.specification.RequestSpecification;
 
-public class DeleteData{
+public class DeleteDataUtils {
     public static void deleteUserById(int checkedId, RequestSpecification requestSpec, String apiUsers) {
         requestSpec
-                .given()
                 .when()
                 .queryParam("force", true)
                 .queryParam("reassign", 1)
@@ -16,7 +15,6 @@ public class DeleteData{
 
     public static void deleteTagById(int checkedId, RequestSpecification requestSpec, String apiTags) {
         requestSpec
-                .given()
                 .queryParam("force", true)
                 .when()
                 .delete(apiTags + checkedId)

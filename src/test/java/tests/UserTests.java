@@ -17,9 +17,9 @@ import static org.hamcrest.Matchers.*;
 public class UserTests extends BaseTest {
     private String username = generator.generateRandomWord(5);
     private String email = generator.generateRandomEmail();
-    private String password = generator.generateRandomWord(11);
-    private String descriptionUpdated = generator.generateRandomWord(7);
-    private String description = generator.generateRandomWord(8);
+    private final String password = generator.generateRandomWord(11);
+    private final String descriptionUpdated = generator.generateRandomWord(7);
+    private final String description = generator.generateRandomWord(8);
 
     /**
      * Инициализирует конфигурационные данные.
@@ -27,6 +27,7 @@ public class UserTests extends BaseTest {
      */
     @BeforeEach
     public void setUp() {
+        requestSpec = given().header("Authorization", config.getProperty("token"));
         apiUsers = config.getProperty("api.users");
     }
 
@@ -52,9 +53,7 @@ public class UserTests extends BaseTest {
         Response getUserResponse = requestSpec
                 .when()
                 .get(apiUsers + checkedId);
-        getUserResponse.then().statusCode(200);
-
-        getUserResponse.then()
+        getUserResponse.then().statusCode(200)
                 .body("id", equalTo(checkedId))
                 .body("name", equalTo(username))
                 .body("description", equalTo(description))
@@ -91,12 +90,8 @@ public class UserTests extends BaseTest {
                 .formParam("description", descriptionUpdated)
                 .when()
                 .post(apiUsers + checkedId);
-        updateUserResponse.then().statusCode(200);
-
-        updateUserResponse.then()
-                .body("description", equalTo(descriptionUpdated));
-
-        updateUserResponse.then()
+        updateUserResponse.then().statusCode(200)
+                .body("description", equalTo(descriptionUpdated))
                 .body("id", equalTo(checkedId))
                 .body("username", equalTo(username))
                 .body("name", equalTo(username))
@@ -142,9 +137,7 @@ public class UserTests extends BaseTest {
                 .queryParam("reassign", 1)
                 .when()
                 .delete(apiUsers + checkedId);
-        deleteResponse.then().statusCode(200);
-
-        deleteResponse.then()
+        deleteResponse.then().statusCode(200)
                 .body("deleted", equalTo(true))
                 .body("previous.id", equalTo(checkedId))
                 .body("previous.username", equalTo(username))
@@ -180,13 +173,14 @@ public class UserTests extends BaseTest {
                 .get(apiUsers + "me");
         response.then().statusCode(200);
 
+        String expectedSlug = username.toLowerCase().replace(" ", "").replace(".", "-");
+
         response.then()
                 .body("id", equalTo(checkedId))
                 .body("name", equalTo(username))
                 .body("description", notNullValue())
                 .body("url", notNullValue())
-                .body("link", containsString("http://localhost:8000/?author=" + checkedId))
-                .body("slug", equalTo(username.toLowerCase()))
+                .body("link", containsString("http://localhost:8000/?author=" + checkedId)).body("slug", equalTo(expectedSlug.toLowerCase()))
                 .body("avatar_urls.24", containsString("secure.gravatar.com/avatar"))
                 .body("avatar_urls.48", containsString("secure.gravatar.com/avatar"))
                 .body("avatar_urls.96", containsString("secure.gravatar.com/avatar"))
@@ -210,12 +204,8 @@ public class UserTests extends BaseTest {
                 .formParam("description", descriptionUpdated)
                 .when()
                 .post(apiUsers + "me");
-        response.then().statusCode(200);
-
-        response.then()
-                .body("description", equalTo(descriptionUpdated));
-
-        response.then()
+        response.then().statusCode(200)
+                .body("description", equalTo(descriptionUpdated))
                 .body("id", equalTo(checkedId))
                 .body("username", equalTo(username))
                 .body("name", equalTo(username))
@@ -248,8 +238,7 @@ public class UserTests extends BaseTest {
                 .formParam("password", password)
                 .when()
                 .post(apiUsers);
-        response.then().statusCode(401);
-        response.then()
+        response.then().statusCode(401)
                 .body("code", equalTo("rest_cannot_create_user"))
                 .body("message", equalTo("Извините, вам не разрешено создавать новых пользователей."))
                 .body("data.status", equalTo(401));
@@ -266,8 +255,7 @@ public class UserTests extends BaseTest {
         Response response = requestSpec
                 .when()
                 .get(apiUsers + fakeID);
-        response.then().statusCode(404);
-        response.then()
+        response.then().statusCode(404)
                 .body("code", equalTo("rest_user_invalid_id"))
                 .body("message", equalTo("Неверный ID пользователя."))
                 .body("data.status", equalTo(404));

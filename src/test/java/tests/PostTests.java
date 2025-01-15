@@ -15,10 +15,10 @@ import static org.hamcrest.Matchers.*;
  */
 @Epic("Testing WordPressAPI for posts")
 public class PostTests extends BaseTest {
-    private String title = generator.generateRandomWord(12);
-    private String content = generator.generateRandomWord(14);
-    private String status = config.getProperty("post.status");
-    private String statusNew = config.getProperty("post.status.new");
+    private final String title = generator.generateRandomWord(12);
+    private final String content = generator.generateRandomWord(14);
+    private final String status = config.getProperty("post.status");
+    private final String statusNew = config.getProperty("post.status.new");
 
     /**
      * Инициализирует конфигурационные данные.
@@ -26,6 +26,7 @@ public class PostTests extends BaseTest {
      */
     @BeforeEach
     public void setUp() {
+        requestSpec = given().header("Authorization", config.getProperty("token"));
         apiPosts = config.getProperty("api.posts");
     }
     /**
@@ -36,6 +37,7 @@ public class PostTests extends BaseTest {
     @Description("Create a post and verify the ID")
     @Step("Create post with title, content, status")
     public void testPostPostAndGetById() {
+
         Response response = requestSpec
                 .formParam("title", title)
                 .formParam("content", content)
@@ -48,12 +50,11 @@ public class PostTests extends BaseTest {
                 .extract()
                 .path("id");
 
-        Response getPostResponse = requestSpec
+        Response getPostResponse = given()
+                .header("Authorization", config.getProperty("token"))
                 .when()
                 .get(apiPosts + checkedId);
-        getPostResponse.then().statusCode(200);
-
-        getPostResponse.then()
+        getPostResponse.then().statusCode(200)
                 .body("id", equalTo(checkedId))
                 .body("date", notNullValue())
                 .body("date_gmt", notNullValue())
@@ -105,9 +106,7 @@ public class PostTests extends BaseTest {
                 .formParam("status", statusNew)
                 .when()
                 .post(apiPosts + checkedId);
-        updatePostResponse.then().statusCode(200);
-
-        updatePostResponse.then()
+        updatePostResponse.then().statusCode(200)
                 .body("id", equalTo(checkedId))
                 .body("date", notNullValue())
                 .body("date_gmt", notNullValue())
@@ -160,9 +159,7 @@ public class PostTests extends BaseTest {
         Response deletePostResponse = requestSpec
                 .when()
                 .delete(apiPosts + checkedId);
-        deletePostResponse.then().statusCode(200);
-
-        deletePostResponse.then()
+        deletePostResponse.then().statusCode(200)
                 .body("id", equalTo(checkedId))
                 .body("date", notNullValue())
                 .body("date_gmt", notNullValue())
@@ -206,9 +203,7 @@ public class PostTests extends BaseTest {
                 .formParam("status", status)
                 .when()
                 .post(apiPosts);
-        response.then().statusCode(401);
-
-        response.then()
+        response.then().statusCode(401)
                 .body("code", equalTo("rest_cannot_create"))
                 .body("message", equalTo("Извините, вам не разрешено создавать записи от лица этого пользователя."))
                 .body("data.status", equalTo(401));
@@ -228,9 +223,7 @@ public class PostTests extends BaseTest {
         Response response = requestSpec
                 .when()
                 .get(apiPosts + fakeID);
-        response.then().statusCode(404);
-
-        response.then()
+        response.then().statusCode(404)
                 .body("code", equalTo("rest_post_invalid_id"))
                 .body("message", equalTo("Неверный ID записи."))
                 .body("data.status", equalTo(404));

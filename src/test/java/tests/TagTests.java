@@ -25,6 +25,7 @@ public class TagTests extends BaseTest {
      */
     @BeforeEach
     public void setUp() {
+        requestSpec = given().header("Authorization", config.getProperty("token"));
         apiTags = config.getProperty("api.tags");
     }
 
@@ -50,9 +51,7 @@ public class TagTests extends BaseTest {
         Response getTagResponse = requestSpec
                 .when()
                 .get(apiTags + checkedId);
-        getTagResponse.then().statusCode(200);
-
-        getTagResponse.then()
+        getTagResponse.then().statusCode(200)
                 .body("id", equalTo(checkedId))
                 .body("count", notNullValue())
                 .body("name", equalTo(name))
@@ -70,7 +69,7 @@ public class TagTests extends BaseTest {
 
     /**
      * Тест для создания нового тега с уже использующимся именем.
-     * <p>
+     *
      * Этот тест отправляет POST-запрос для создания тега
      * и проверяет, что статус-код ответа равен 400.
      */
@@ -90,9 +89,7 @@ public class TagTests extends BaseTest {
                 .formParam("name", name)
                 .when()
                 .post(apiTags);
-        reResponse.then().statusCode(400);
-
-        reResponse.then()
+        reResponse.then().statusCode(400)
                 .body("code", equalTo("term_exists"))
                 .body("message", equalTo("Элемент с указанным именем и ярлыком уже существует в этой таксономии."))
                 .body("data.status", equalTo(400));
@@ -123,12 +120,8 @@ public class TagTests extends BaseTest {
                 .formParam("name", nameNew)
                 .when()
                 .post(apiTags + checkedId);
-        postTagResponse.then().statusCode(200);
-
-        postTagResponse.then()
-                .body("name", equalTo(nameNew));
-
-        postTagResponse.then()
+        postTagResponse.then().statusCode(200)
+                .body("name", equalTo(nameNew))
                 .body("id", equalTo(checkedId))
                 .body("count", notNullValue())
                 .body("description", equalTo(description))
@@ -168,9 +161,7 @@ public class TagTests extends BaseTest {
                 .queryParam("force", true)
                 .when()
                 .delete(apiTags + checkedId);
-        deleteTagResponse.then().statusCode(200);
-
-        deleteTagResponse.then()
+        deleteTagResponse.then().statusCode(200)
                 .body("deleted", equalTo(true))
                 .body("previous.id", equalTo(checkedId))
                 .body("previous.count", notNullValue())
@@ -196,8 +187,7 @@ public class TagTests extends BaseTest {
                 .formParam("description", description)
                 .when()
                 .post(apiTags);
-        response.then().statusCode(401);
-        response.then()
+        response.then().statusCode(401)
                 .body("code", equalTo("rest_cannot_create"))
                 .body("message", equalTo("Извините, вам не разрешено создавать элементы этой таксономии."))
                 .body("data.status", equalTo(401));
@@ -217,9 +207,7 @@ public class TagTests extends BaseTest {
         Response response = requestSpec
                 .when()
                 .get(apiTags + fakeID);
-        response.then().statusCode(404);
-
-        response.then()
+        response.then().statusCode(404)
                 .body("code", equalTo("rest_term_invalid"))
                 .body("message", equalTo("Элемент не существует."))
                 .body("data.status", equalTo(404));
