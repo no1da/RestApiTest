@@ -4,8 +4,11 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import utils.DeleteDataUtils;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -58,13 +61,13 @@ public class UserTests extends BaseTest {
                 .body("name", equalTo(username))
                 .body("description", equalTo(description))
                 .body("url", notNullValue())
-                .body("link", containsString("localhost:8000/?author=" + checkedId))
+                .body("link", equalTo("http://localhost:8000/?author=" + checkedId))
                 .body("slug", equalTo(username.toLowerCase()))
-                .body("avatar_urls.24", containsString("secure.gravatar.com/avatar"))
-                .body("avatar_urls.48", containsString("secure.gravatar.com/avatar"))
-                .body("avatar_urls.96", containsString("secure.gravatar.com/avatar"))
-                .body("_links.self[0].href", containsString("/wp/v2/users/" + checkedId))
-                .body("_links.collection[0].href", containsString("/wp/v2/users"));
+                .body("avatar_urls.24", startsWith("https://secure.gravatar.com/avatar"))
+                .body("avatar_urls.48", startsWith("https://secure.gravatar.com/avatar"))
+                .body("avatar_urls.96", startsWith("https://secure.gravatar.com/avatar"))
+                .body("_links.self[0].href", endsWith("/wp/v2/users/" + checkedId))
+                .body("_links.collection[0].href", endsWith("/wp/v2/users"));
     }
 
     /**
@@ -97,20 +100,20 @@ public class UserTests extends BaseTest {
                 .body("name", equalTo(username))
                 .body("first_name", notNullValue())
                 .body("last_name", notNullValue())
-                .body("link", containsString("http://localhost:8000/?author=" + checkedId))
+                .body("link", startsWith("http://localhost:8000/?author=" + checkedId))
                 .body("email", equalTo(email))
-                .body("locale", containsString("ru_RU"))
+                .body("locale", startsWith("ru_RU"))
                 .body("nickname", equalTo(username))
                 .body("roles[0]", equalTo("subscriber"))
                 .body("registered_date", notNullValue())
                 .body("roles", hasItem("subscriber"))
-                .body("_links.self[0].href", containsString("/wp/v2/users/" + checkedId))
-                .body("_links.collection[0].href", containsString("/wp/v2/users"))
+                .body("_links.self[0].href", endsWith("/wp/v2/users/" + checkedId))
+                .body("_links.collection[0].href", endsWith("/wp/v2/users"))
                 .body("capabilities.read", equalTo(true))
                 .body("capabilities.level_0", equalTo(true))
                 .body("capabilities.subscriber", equalTo(true))
                 .body("extra_capabilities.subscriber", equalTo(true))
-                .body("avatar_urls.96", containsString("secure.gravatar.com"));
+                .body("avatar_urls.96", startsWith("https://secure.gravatar.com"));
     }
 
     /**
@@ -144,7 +147,7 @@ public class UserTests extends BaseTest {
                 .body("previous.name", equalTo(username))
                 .body("previous.description", equalTo(description))
                 .body("previous.url", notNullValue())
-                .body("previous.link", containsString("localhost:8000/?author=" + checkedId))
+                .body("previous.link", startsWith("http://localhost:8000/?author=" + checkedId))
                 .body("previous.slug", equalTo(username.toLowerCase()))
                 .body("previous.roles", hasItem("subscriber"))
                 .body("previous.registered_date", notNullValue())
@@ -152,9 +155,9 @@ public class UserTests extends BaseTest {
                 .body("previous.capabilities.level_0", equalTo(true))
                 .body("previous.capabilities.subscriber", equalTo(true))
                 .body("previous.extra_capabilities.subscriber", equalTo(true))
-                .body("previous.avatar_urls.24", containsString("secure.gravatar.com/avatar"))
-                .body("previous.avatar_urls.48", containsString("secure.gravatar.com/avatar"))
-                .body("previous.avatar_urls.96", containsString("secure.gravatar.com/avatar"));
+                .body("previous.avatar_urls.24", startsWith("https://secure.gravatar.com/avatar"))
+                .body("previous.avatar_urls.48", startsWith("https://secure.gravatar.com/avatar"))
+                .body("previous.avatar_urls.96", startsWith("https://secure.gravatar.com/avatar"));
     }
 
     /**
@@ -180,12 +183,13 @@ public class UserTests extends BaseTest {
                 .body("name", equalTo(username))
                 .body("description", notNullValue())
                 .body("url", notNullValue())
-                .body("link", containsString("http://localhost:8000/?author=" + checkedId)).body("slug", equalTo(expectedSlug.toLowerCase()))
-                .body("avatar_urls.24", containsString("secure.gravatar.com/avatar"))
-                .body("avatar_urls.48", containsString("secure.gravatar.com/avatar"))
-                .body("avatar_urls.96", containsString("secure.gravatar.com/avatar"))
-                .body("_links.self[0].href", containsString("/wp/v2/users/" + checkedId))
-                .body("_links.collection[0].href", containsString("/wp/v2/users"));
+                .body("link", startsWith("http://localhost:8000/?author=" + checkedId))
+                .body("slug", equalTo(expectedSlug.toLowerCase()))
+                .body("avatar_urls.24", startsWith("https://secure.gravatar.com/avatar"))
+                .body("avatar_urls.48", startsWith("https://secure.gravatar.com/avatar"))
+                .body("avatar_urls.96", startsWith("https://secure.gravatar.com/avatar"))
+                .body("_links.self[0].href", endsWith("/wp/v2/users/" + checkedId))
+                .body("_links.collection[0].href", endsWith("/wp/v2/users"));
     }
 
     /**
@@ -211,14 +215,14 @@ public class UserTests extends BaseTest {
                 .body("name", equalTo(username))
                 .body("first_name", notNullValue())
                 .body("last_name", notNullValue())
-                .body("link", containsString("http://localhost:8000/?author=" + checkedId))
+                .body("link", startsWith("http://localhost:8000/?author=" + checkedId))
                 .body("email", equalTo(email))
-                .body("locale", containsString("ru_RU"))
+                .body("locale", startsWith("ru_RU"))
                 .body("nickname", equalTo(username))
                 .body("roles[0]", equalTo("administrator"))
                 .body("registered_date", notNullValue())
-                .body("_links.self[0].href", containsString("/wp/v2/users/" + checkedId))
-                .body("_links.collection[0].href", containsString("/wp/v2/users"))
+                .body("_links.self[0].href", endsWith("/wp/v2/users/" + checkedId))
+                .body("_links.collection[0].href", endsWith("/wp/v2/users"))
                 .body("capabilities", notNullValue())
                 .body("meta", notNullValue())
                 .body("avatar_urls", notNullValue());
@@ -259,5 +263,17 @@ public class UserTests extends BaseTest {
                 .body("code", equalTo("rest_user_invalid_id"))
                 .body("message", equalTo("Неверный ID пользователя."))
                 .body("data.status", equalTo(404));
+    }
+
+    /**
+     * Метод, выполняющийся после каждого теста. Удаляет созданные данные.
+     *
+     * @param testInfo информация о текущем тесте
+     */
+    @AfterEach
+    public void tearDown(TestInfo testInfo) {
+        if ("testUpdateUserById()".equals(testInfo.getDisplayName()) || "testPostUserAndGetById()".equals(testInfo.getDisplayName())) {
+            DeleteDataUtils.deleteUserById(checkedId, requestSpec, apiUsers);
+        }
     }
 }

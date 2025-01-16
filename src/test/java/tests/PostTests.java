@@ -4,8 +4,11 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import utils.DeleteDataUtils;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -65,7 +68,7 @@ public class PostTests extends BaseTest {
                 .body("type", equalTo("post"))
                 .body("title.rendered", equalTo(title))
                 .body("link", equalTo("http://localhost:8000/?p=" + checkedId))
-                .body("content.rendered", containsString(content))
+                .body("content.rendered", equalTo("<p>" + content + "</p>\n"))
                 .body("author", notNullValue())
                 .body("comment_status", equalTo("open"))
                 .body("ping_status", equalTo("open"))
@@ -118,8 +121,8 @@ public class PostTests extends BaseTest {
                 .body("title.rendered", equalTo(title))
                 .body("title.raw", equalTo(title))
                 .body("link", equalTo("http://localhost:8000/?p=" + checkedId))
-                .body("content.rendered", containsString(content))
-                .body("content.raw", containsString(content))
+                .body("content.rendered", equalTo("<p>" + content + "</p>\n"))
+                .body("content.raw", equalTo(content))
                 .body("author", notNullValue())
                 .body("featured_media", notNullValue())
                 .body("comment_status", equalTo("open"))
@@ -171,8 +174,8 @@ public class PostTests extends BaseTest {
                 .body("title.rendered", equalTo(title))
                 .body("title.raw", equalTo(title))
                 .body("link", equalTo("http://localhost:8000/?p=" + checkedId))
-                .body("content.rendered", containsString(content))
-                .body("content.raw", containsString(content))
+                .body("content.rendered", equalTo("<p>" + content + "</p>\n"))
+                .body("content.raw", equalTo(content))
                 .body("author", notNullValue())
                 .body("featured_media", notNullValue())
                 .body("comment_status", equalTo("open"))
@@ -227,5 +230,17 @@ public class PostTests extends BaseTest {
                 .body("code", equalTo("rest_post_invalid_id"))
                 .body("message", equalTo("Неверный ID записи."))
                 .body("data.status", equalTo(404));
+    }
+
+    /**
+     * Метод, выполняющийся после каждого теста. Удаляет созданные данные.
+     *
+     * @param testInfo информация о текущем тесте
+     */
+    @AfterEach
+    public void tearDown(TestInfo testInfo) {
+        if ("testUpdatePostById()".equals(testInfo.getDisplayName()) || "testPostPostAndGetById()".equals(testInfo.getDisplayName())) {
+            DeleteDataUtils.deletePostById(checkedId, requestSpec, apiPosts);
+        }
     }
 }

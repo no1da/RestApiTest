@@ -12,7 +12,7 @@ import java.util.Properties;
  * </p>
  */
 public class Config {
-    private Properties properties;
+    private final Properties properties;
     /**
      * Конструктор класса utils.Config.
      * <p>

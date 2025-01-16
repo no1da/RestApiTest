@@ -4,8 +4,11 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import utils.DeleteDataUtils;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
@@ -57,13 +60,13 @@ public class TagTests extends BaseTest {
                 .body("name", equalTo(name))
                 .body("description", equalTo(description))
                 .body("taxonomy", equalTo("post_tag"))
-                .body("link", containsString("localhost:8000/?tag=" + name.toLowerCase()))
+                .body("link", startsWith("http://localhost:8000/?tag=" + name.toLowerCase()))
                 .body("slug", equalTo(name.toLowerCase()))
                 .body("meta", notNullValue())
-                .body("_links.self[0].href", containsString("/wp/v2/tags/" + checkedId))
-                .body("_links.collection[0].href", containsString("/wp/v2/tags"))
-                .body("_links.about[0].href", containsString("/wp/v2/taxonomies/post_tag"))
-                .body("_links.\"wp:post_type\"[0].href", containsString("localhost:8000/index.php?rest_route=%2Fwp%2Fv2%2Fposts&tags=" + checkedId))
+                .body("_links.self[0].href", endsWith("/wp/v2/tags/" + checkedId))
+                .body("_links.collection[0].href", endsWith("/wp/v2/tags"))
+                .body("_links.about[0].href", endsWith("/wp/v2/taxonomies/post_tag"))
+                .body("_links.\"wp:post_type\"[0].href", startsWith("http://localhost:8000/index.php?rest_route=%2Fwp%2Fv2%2Fposts&tags=" + checkedId))
                 .body("_links.curies", notNullValue());
     }
 
@@ -126,13 +129,13 @@ public class TagTests extends BaseTest {
                 .body("count", notNullValue())
                 .body("description", equalTo(description))
                 .body("taxonomy", equalTo("post_tag"))
-                .body("link", containsString("localhost:8000/?tag=" + name.toLowerCase()))
+                .body("link", startsWith("http://localhost:8000/?tag=" + name.toLowerCase()))
                 .body("slug", equalTo(name.toLowerCase()))
                 .body("meta", notNullValue())
-                .body("_links.self[0].href", containsString("/wp/v2/tags/" + checkedId))
-                .body("_links.collection[0].href", containsString("/wp/v2/tags"))
-                .body("_links.about[0].href", containsString("/wp/v2/taxonomies/post_tag"))
-                .body("_links.\"wp:post_type\"[0].href", containsString("localhost:8000/index.php?rest_route=%2Fwp%2Fv2%2Fposts&tags=" + checkedId))
+                .body("_links.self[0].href", endsWith("/wp/v2/tags/" + checkedId))
+                .body("_links.collection[0].href", endsWith("/wp/v2/tags"))
+                .body("_links.about[0].href", endsWith("/wp/v2/taxonomies/post_tag"))
+                .body("_links.\"wp:post_type\"[0].href", startsWith("http://localhost:8000/index.php?rest_route=%2Fwp%2Fv2%2Fposts&tags=" + checkedId))
                 .body("_links.curies", notNullValue());
     }
 
@@ -167,7 +170,7 @@ public class TagTests extends BaseTest {
                 .body("previous.count", notNullValue())
                 .body("previous.description", notNullValue())
                 .body("previous.taxonomy", equalTo("post_tag"))
-                .body("previous.link", containsString("localhost:8000/?tag=" + name.toLowerCase()))
+                .body("previous.link", startsWith("http://localhost:8000/?tag=" + name.toLowerCase()))
                 .body("previous.slug", equalTo(name.toLowerCase()))
                 .body("previous.meta", notNullValue());
     }
@@ -211,5 +214,17 @@ public class TagTests extends BaseTest {
                 .body("code", equalTo("rest_term_invalid"))
                 .body("message", equalTo("Элемент не существует."))
                 .body("data.status", equalTo(404));
+    }
+
+    /**
+     * Метод, выполняющийся после каждого теста. Удаляет созданные данные.
+     *
+     * @param testInfo информация о текущем тесте
+     */
+    @AfterEach
+    public void tearDown(TestInfo testInfo) {
+        if ("testUpdateTagById()".equals(testInfo.getDisplayName()) || "testPostTagAndGetById()".equals(testInfo.getDisplayName())) {
+            DeleteDataUtils.deleteTagById(checkedId, requestSpec, apiTags);
+        }
     }
 }
