@@ -87,6 +87,10 @@ public class TagTests extends BaseTest {
                 .post(apiTags);
         response.then().statusCode(201);
 
+        checkedId = response.then()
+                .extract()
+                .path("id");
+
         Response reResponse = requestSpec
                 .formParam("description", description)
                 .formParam("name", name)
@@ -183,8 +187,8 @@ public class TagTests extends BaseTest {
      */
     @Test
     @Description("Try to create tag without token")
-    @Step("Attempt to create a tag with a missing authorization token")
-    public void testCreateTagWithOutToken() {
+    @Step("Attempt to create a tag without token")
+    public void testCreateTagWithoutToken() {
         Response response = given()
                 .formParam("name", name)
                 .formParam("description", description)
@@ -223,7 +227,8 @@ public class TagTests extends BaseTest {
      */
     @AfterEach
     public void tearDown(TestInfo testInfo) {
-        if ("testUpdateTagById()".equals(testInfo.getDisplayName()) || "testPostTagAndGetById()".equals(testInfo.getDisplayName())) {
+        if ("testUpdateTagById()".equals(testInfo.getDisplayName()) || "testPostTagAndGetById()".equals(testInfo.getDisplayName())
+                || "testCreateTagWithUsedName()".equals(testInfo.getDisplayName())) {
             DeleteDataUtils.deleteTagById(checkedId, requestSpec, apiTags);
         }
     }

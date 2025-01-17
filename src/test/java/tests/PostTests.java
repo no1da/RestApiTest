@@ -198,8 +198,8 @@ public class PostTests extends BaseTest {
      */
     @Test
     @Description("Try to create post without token")
-    @Step("Attempt to create a post with missing authorization token")
-    public void testCreatePostWithOutToken() {
+    @Step("Attempt to create a post without token")
+    public void testCreatePostWithoutToken() {
         Response response = given()
                 .formParam("title", title)
                 .formParam("content", content)

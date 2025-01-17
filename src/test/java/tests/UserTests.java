@@ -230,12 +230,13 @@ public class UserTests extends BaseTest {
 
     /**
      * Тест создания пользователя с некорректным токеном.
-     * Проверяет, что система возвращает HTTP-код 401 (Unauthorized).
+     * Проверяет, что система возвращает HTTP-код 401 (Unauthorized
+     * ).
      */
     @Test
-    @Description("Try to create user with invalid token")
-    @Step("Attempt creating a user with missing/invalid authorization token")
-    public void testCreateUserWithOutToken() {
+    @Description("Try to create user without token")
+    @Step("Attempt creating a user without authorization token")
+    public void testCreateUserWithoutToken() {
         Response response = given()
                 .formParam("username", username)
                 .formParam("email", email)
