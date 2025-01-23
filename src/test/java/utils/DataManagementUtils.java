@@ -1,6 +1,7 @@
 package utils;
 
 import java.sql.*;
+
 /**
  * Утилиты для управления базой данных, включая создание и удаление пользователей, постов и тегов.
  */
@@ -155,28 +156,103 @@ public class DataManagementUtils {
     }
 
     /**
-     * Удаляет пользователя из базы данных по его ID.
+     * Получает запись тега из базы данных по его ID.
      *
-     * @param userId ID пользователя.
-     * @throws SQLException Если возникает ошибка во время выполнения SQL-запроса.
+     * @param id ID тега для выбора.
+     * @return ResultSet содержащий данные тега.
+     * @throws SQLException Если возникает ошибка при выполнении SQL-запроса.
      */
-    public void deleteUserById(int userId) throws SQLException {
-        String deleteQuery = "DELETE FROM wp_users WHERE ID = ?";
-        try (PreparedStatement deleteStatement = connection.prepareStatement(deleteQuery)) {
-            deleteStatement.setInt(1, userId);
-            deleteStatement.executeUpdate();
+    public ResultSet selectTermFromDBByID(int id) throws SQLException {
+        String selectQuery = "SELECT * FROM wp_terms WHERE term_id = ?";
+        PreparedStatement selectStatement = connection.prepareStatement(selectQuery);
+        selectStatement.setInt(1, id);
+
+        return selectStatement.executeQuery();
+    }
+
+    /**
+     * Обновляет тег в базе данных по его ID.
+     *
+     * @param termId      ID тега, который нужно обновить.
+     * @param updatedName Обновленное название тега.
+     * @throws SQLException Если возникает ошибка при выполнении SQL-запроса.
+     */
+    public void updateTermByID(int termId, String updatedName) throws SQLException {
+        String updateQuery = "UPDATE wp_terms SET name = ? WHERE term_id = ?";
+        try (PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
+            updateStatement.setString(1, updatedName);
+            updateStatement.setInt(2, termId);
+            updateStatement.executeUpdate();
         }
     }
+
     /**
-     * Удаляет пост из базы данных по его ID.
+     * Получает запись из базы данных по её ID.
      *
-     * @param postId ID поста.
+     * @param id        ID записи для выбора.
+     * @param tableName Имя таблицы, из которой нужно выбрать запись.
+     * @return ResultSet содержащий данные записи.
+     * @throws SQLException Если возникает ошибка при выполнении SQL-запроса.
+     */
+    public ResultSet selectEntityFromDBByID(int id, String tableName) throws SQLException {
+        String selectQuery = "SELECT * FROM " + tableName + " WHERE ID = ?";
+        PreparedStatement selectStatement = connection.prepareStatement(selectQuery);
+        selectStatement.setInt(1, id);
+
+        return selectStatement.executeQuery();
+    }
+
+    /**
+     * Обновляет запись в базе данных по её ID.
+     *
+     * @param termId          ID записи, которую нужно обновить.
+     * @param tableName       Имя таблицы, в которой нужно обновить запись.
+     * @param variable        Имя переменной, которую нужно обновить.
+     * @param updatedVariable Новое значение переменной.
+     * @throws SQLException Если возникает ошибка при выполнении SQL-запроса.
+     */
+    public void updateEntityByID(int termId, String tableName, String variable, String updatedVariable) throws SQLException {
+        String updateQuery = "UPDATE " + tableName + " SET " + variable + " = ? WHERE ID = ?";
+        try (PreparedStatement updateStatement = connection.prepareStatement(updateQuery)) {
+            updateStatement.setString(1, updatedVariable);
+            updateStatement.setInt(2, termId);
+            updateStatement.executeUpdate();
+        }
+    }
+
+    /**
+     * Считывает количество записей в указанной таблице.
+     *
+     * @param tableName Имя таблицы.
+     * @return Количество записей в таблице.
+     * @throws SQLException Если возникает ошибка при выполнении SQL-запроса.
+     */
+    public Long countEntityInDB(String tableName) throws SQLException {
+        String countQuery = "SELECT COUNT(*) FROM " + tableName;
+        PreparedStatement countStatement = connection.prepareStatement(countQuery);
+        ResultSet resultSet = countStatement.executeQuery();
+
+        Long count = null;
+        if (resultSet.next()) {
+            count = resultSet.getLong(1);
+        }
+
+        resultSet.close();
+        countStatement.close();
+        return count;
+    }
+
+    /**
+     * Удаляет запись из базы данных по его ID.
+     *
+     * @param id ID записи.
+     * @param tableName Имя таблицы, из которой нужно удалить запись.
      * @throws SQLException Если возникает ошибка во время выполнения SQL-запроса.
      */
-    public void deletePostById(int postId) throws SQLException {
-        String deleteQuery = "DELETE FROM wp_posts WHERE ID = ?";
+    public void deleteEntityById(int id, String tableName) throws SQLException {
+        String deleteQuery = "DELETE FROM " + tableName + " WHERE ID = ?";
         try (PreparedStatement deleteStatement = connection.prepareStatement(deleteQuery)) {
-            deleteStatement.setInt(1, postId);
+            deleteStatement.setInt(1, id);
             deleteStatement.executeUpdate();
         }
     }

@@ -1,4 +1,4 @@
-package tests;
+package dBtests;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
