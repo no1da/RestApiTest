@@ -38,9 +38,10 @@ public class DBUserTest extends DBBaseTest {
     @Severity(SeverityLevel.NORMAL)
     void testCreateUser() throws SQLException {
         long countBefore = dataManagementUtils.countEntityInDB(TABLE_NAME);
-        userId = dataManagementUtils.createUserGetId(userLogin, userPass, userNiceName, userEmail, userUrl, userRegistered, userActivationKey, userStatus, displayName);
+        userId = dataManagementUtils.createUserGetId(userLogin, userPass, userNiceName, userEmail, userUrl,
+                userRegistered, userActivationKey, userStatus, displayName);
         long countAfter = dataManagementUtils.countEntityInDB(TABLE_NAME);
-        assertTrue(countAfter > countBefore);
+        assertEquals(1, countAfter - countBefore);
     }
 
     /**
@@ -55,12 +56,9 @@ public class DBUserTest extends DBBaseTest {
     void testUpdateUser() throws SQLException {
         userId = dataManagementUtils.createUserGetId(userLogin, userPass, userNiceName, userEmail, userUrl,
                 userRegistered, userActivationKey, userStatus, displayName);
-
         String updatedVariable = "Updated Test User";
         String variable = "user_nicename";
-
         dataManagementUtils.updateEntityByID(userId, TABLE_NAME, variable, updatedVariable);
-
         try (ResultSet resultSet = dataManagementUtils.selectEntityFromDBByID(userId, TABLE_NAME)) {
             assertTrue(resultSet.next(), "Пользователь не найден после обновления.");
             assertEquals(updatedVariable, resultSet.getString("user_nicename"));
@@ -82,7 +80,7 @@ public class DBUserTest extends DBBaseTest {
         long countBefore = dataManagementUtils.countEntityInDB(TABLE_NAME);
         dataManagementUtils.deleteEntityById(userId, TABLE_NAME);
         long countAfter = dataManagementUtils.countEntityInDB(TABLE_NAME);
-        assertTrue(countAfter < countBefore);
+        assertEquals(-1, countAfter - countBefore);
     }
 
     /**
@@ -100,6 +98,7 @@ public class DBUserTest extends DBBaseTest {
             assertFalse(resultSet.next(), "Найден пользователь с несуществующим ID.");
         }
     }
+
     /**
      * Закрывает соединение с базой данных после каждого теста.
      * Удаляет пользователей, созданных в тестах.

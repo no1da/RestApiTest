@@ -34,7 +34,7 @@ public class DBTermTest extends DBBaseTest {
         long countBefore = dataManagementUtils.countEntityInDB(TABLE_NAME);
         termId = dataManagementUtils.createTermGetId(termName, termSlug, termGroup);
         long countAfter = dataManagementUtils.countEntityInDB(TABLE_NAME);
-        assertTrue(countAfter > countBefore);
+        assertEquals(1, countAfter - countBefore);
     }
 
     /**
@@ -48,9 +48,7 @@ public class DBTermTest extends DBBaseTest {
     @Severity(SeverityLevel.NORMAL)
     void testUpdateTerm() throws SQLException {
         termId = dataManagementUtils.createTermGetId(termName, termSlug, termGroup);
-
         dataManagementUtils.updateTermByID(termId, updatedName);
-
         try (ResultSet resultSet = dataManagementUtils.selectTermFromDBByID(termId)) {
             assertTrue(resultSet.next(), "Тег не найден после обновления.");
             assertEquals(updatedName, resultSet.getString("name"));
@@ -71,7 +69,7 @@ public class DBTermTest extends DBBaseTest {
         long countBefore = dataManagementUtils.countEntityInDB(TABLE_NAME);
         dataManagementUtils.deleteTagById(termId);
         long countAfter = dataManagementUtils.countEntityInDB(TABLE_NAME);
-        assertTrue(countAfter < countBefore);
+        assertEquals(-1, countAfter - countBefore);
     }
 
     /**
@@ -85,11 +83,11 @@ public class DBTermTest extends DBBaseTest {
     @Severity(SeverityLevel.NORMAL)
     public void testGetTermWithInvalidId() throws SQLException {
         int nonExistentTermId = 99999;
-
         try (ResultSet resultSet = dataManagementUtils.selectTermFromDBByID(nonExistentTermId)) {
             assertFalse(resultSet.next(), "Найден тег с несуществующим ID.");
         }
     }
+
     /**
      * Закрывает соединение с базой данных после каждого теста.
      * Удаляет теги, созданные в тестах.

@@ -39,6 +39,7 @@ public class DBPostTest extends DBBaseTest {
     private final String postType = "post";
     private final String postMimeType = "";
     private final long commentCount = 0;
+
     /**
      * Проверяет создание нового поста в базе данных.
      * Проверяет, количество строк "До" и "После" создания.
@@ -53,16 +54,14 @@ public class DBPostTest extends DBBaseTest {
         postDateGmt.setNanos(0);
         postModified.setNanos(0);
         postModifiedGmt.setNanos(0);
-
         long countBefore = dataManagementUtils.countEntityInDB(TABLE_NAME);
-
         postId = dataManagementUtils.createPostGetId(postAuthor, postDate, postDateGmt, postContent, postTitle,
                 postExcerpt, postStatus, commentStatus, pingStatus, postPassword, postName, toPing, pinged, postModified,
                 postModifiedGmt, postContentFiltered, postParent, guid, menuOrder, postType, postMimeType, commentCount);
-
         long countAfter = dataManagementUtils.countEntityInDB(TABLE_NAME);
-        assertTrue(countAfter > countBefore);
+        assertEquals(1, countAfter - countBefore);
     }
+
     /**
      * Проверяет обновление статуса существующего поста.
      * Проверяет, что статус поста успешно обновлен.
@@ -77,12 +76,9 @@ public class DBPostTest extends DBBaseTest {
                 postExcerpt, postStatus, commentStatus, pingStatus, postPassword, postName, toPing, pinged,
                 postModified, postModifiedGmt, postContentFiltered, postParent, guid, menuOrder, postType,
                 postMimeType, commentCount);
-
         String updatedVariable = "publish";
         String variable = "post_status";
-
         dataManagementUtils.updateEntityByID(postId, TABLE_NAME, variable, updatedVariable);
-
         try (ResultSet resultSet = dataManagementUtils.selectEntityFromDBByID(postId, TABLE_NAME)) {
             assertTrue(resultSet.next(), "Пост не найден после обновления.");
             assertEquals(updatedVariable, resultSet.getString("post_status"));
@@ -106,8 +102,9 @@ public class DBPostTest extends DBBaseTest {
         long countBefore = dataManagementUtils.countEntityInDB(TABLE_NAME);
         dataManagementUtils.deleteEntityById(postId, TABLE_NAME);
         long countAfter = dataManagementUtils.countEntityInDB(TABLE_NAME);
-        assertTrue(countAfter < countBefore);
+        assertEquals(-1, countAfter - countBefore);
     }
+
     /**
      * Проверяет попытку получения поста с несуществующим ID.
      * Проверяет, что пост с указанным ID не найден.
@@ -123,6 +120,7 @@ public class DBPostTest extends DBBaseTest {
             assertFalse(resultSet.next(), "Найден пост с несуществующим ID.");
         }
     }
+
     /**
      * Закрывает соединение с базой данных после каждого теста.
      * Удаляет посты, созданные в тестах.
